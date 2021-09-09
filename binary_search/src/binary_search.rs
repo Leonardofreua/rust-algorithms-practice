@@ -17,40 +17,34 @@
 ///     * Average O(log n)
 ///     * Worst-case O(log n)
 
+use std::cmp::Ordering;
 
-pub fn binary_search(list_of_items: &[i32], target: &i32) -> Option<usize> {
-  let mut left: i32 = 0;
-  let mut right: i32 = (list_of_items.len() - 1) as i32;
 
-  while left <= right {
-      let middle: usize = ((left + right) / 2) as usize;
+pub fn binary_search<T: Ord>(list_of_items: &[T], target: &T) -> Option<usize> {
+  let mut left: usize = 0;
+  let mut right: usize = list_of_items.len();
 
-      let guess: &i32 = &list_of_items[middle];
-      if guess == target {
-          return Some(middle);
-      } else if guess > target {
-          right = middle as i32 - 1;
-      } else {
-          left = middle as i32 + 1
-      }
+  while left < right {
+    let middle: usize = left + (right - left) / 2;
+
+    match target.cmp(&list_of_items[middle]) {
+        Ordering::Less => right = middle,
+        Ordering::Greater => left = middle + 1,
+        Ordering::Equal => return Some(middle),
+    }
   }
   None
 }
 
-pub fn binary_search_rec(list_of_items: &[i32], target: &i32, left: &i32, right: &i32) -> Option<usize> {
-  if left > right {
-      return None;
+pub fn binary_search_rec<T: Ord>(list_of_items: &[T], target: &T, left: &usize, right: &usize) -> Option<usize> {
+  if left >= right {
+    return None;
   }
 
-  let middle: usize = ((left + right) / 2) as usize;
-  let guess: &i32 = &list_of_items[middle];
-  if guess < target {
-      let middle = (middle as i32) + 1;
-      return binary_search_rec(&list_of_items, &target, &middle, &right);
-  } else if guess > target {
-      let middle = (middle as i32) - 1;
-      return binary_search_rec(&list_of_items, &target, &left, &middle);
-  } else {
-      return Some(middle);
+  let middle: usize = left + (right - left) / 2;
+  match target.cmp(&list_of_items[middle]) {
+    Ordering::Less => binary_search_rec(&list_of_items, &target, &left, &middle),
+    Ordering::Greater => binary_search_rec(&list_of_items, &target, &(middle + 1), &right),
+    Ordering::Equal => return Some(middle),
   }
 }

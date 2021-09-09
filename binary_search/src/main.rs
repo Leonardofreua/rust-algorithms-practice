@@ -1,254 +1,163 @@
 pub mod binary_search;
 
-pub static LIST_SIZE_1: &[i32] = &[30];
-pub static LIST_SIZE_2: &[i32] = &[34, 55];
-pub static LIST_SIZE_3: &[i32] = &[111, 202, 566];
-pub static LIST_SIZE_10: &[i32] = &[0, 10, 20, 30, 40, 50, 60, 70, 80, 90];
-
 #[cfg(test)]
 mod tests_binary_search {
-    use super::*;
     use super::binary_search::binary_search;
     use rstest::rstest;
 
     #[test]
-    fn success_search_element_list_size_1() {
-        assert_eq!(
-            binary_search(LIST_SIZE_1, &30),
-            Some(0)
-        );
-    }
-
-    #[rstest]
-    #[case(99)]
-    #[case(-99)]
-    fn fail_search_for_non_existent_element_list_size_1(#[case] target: i32) {
-        assert_eq!(
-            binary_search(LIST_SIZE_1, &target),
-            None
-        )
+    fn fail_empty_list() {
+        assert_eq!(binary_search(&vec![], &1), None);
     }
 
     #[test]
-    fn success_search_elements_list_size_2() {
-        for (index, element) in LIST_SIZE_2.iter().enumerate() {
+    fn success_one_item() {
+        assert_eq!(binary_search(&vec![30], &30), Some(0));
+    }
+
+    #[test]
+    fn success_search_strings() {
+        let say_hello_list = vec!["hi", "olá", "salut"];
+        assert_eq!(binary_search(&say_hello_list, &"hi"), Some(0));
+        assert_eq!(binary_search(&say_hello_list, &"salut"), Some(2));
+    }
+
+    #[test]
+    fn fail_search_strings() {
+        let say_hello_list = vec!["hi", "olá", "salut"];
+        assert_eq!(binary_search(&say_hello_list, &"adiós"), None);
+        assert_eq!(binary_search(&say_hello_list, &"你好"), None);
+    }
+
+    #[test]
+    fn success_search_integers() {
+        let integers = vec![0, 10, 20, 30, 40, 50, 60, 70, 80, 90];
+        for (index, element) in integers.iter().enumerate() {
             assert_eq!(
-                binary_search(LIST_SIZE_2, element),
+                binary_search(&integers, element),
                 Some(index)
             )
         }
     }
 
     #[rstest]
-    #[case(35)]
-    #[case(-55)]
-    fn fail_search_for_non_existent_elements_list_size_2(#[case] target: i32) {
-        assert_eq!(
-            binary_search(LIST_SIZE_2, &target),
-            None
-        )
-    }
-
-    #[test]
-    fn fail_search_unsorted_list_size_2() {
-        let mut list_size_2_clone= LIST_SIZE_2.clone().to_owned();
-        list_size_2_clone.reverse();
-        assert_eq!(
-            binary_search(&list_size_2_clone, &34),
-            None
-        );
-    }
-
-    #[test]
-    fn success_search_elements_list_size_3() {
-        for (index, element) in LIST_SIZE_3.iter().enumerate() {
-            assert_eq!(
-                binary_search(LIST_SIZE_3, element),
-                Some(index)
-            )
-        }
-    }
-
-    #[rstest]
-    #[case(110)]
-    #[case(-111)]
-    #[case(567)]
-    fn fail_search_for_non_existents_list_size_3(#[case] target: i32) {
-        assert_eq!(
-            binary_search(LIST_SIZE_3, &target),
-            None
-        );
-    }
-
-    #[test]
-    fn fail_search_unsorted_list_size_3() {
-        let mut list_size_3_clone= LIST_SIZE_3.clone().to_owned();
-        list_size_3_clone.reverse();
-        assert_eq!(
-            binary_search(&list_size_3_clone, &111),
-            None
-        );
-    }
-
-    #[test]
-    fn success_search_elements_list_size_10() {
-        for (index, element) in LIST_SIZE_10.iter().enumerate() {
-            assert_eq!(
-                binary_search(LIST_SIZE_10, element),
-                Some(index)
-            )
-        }
-    }
-
-    #[rstest]
-    #[case(-10)]
-    #[case(11)]
     #[case(100)]
-    fn fail_search_for_non_existents_list_size_10(#[case] target: i32) {
-        assert_eq!(
-            binary_search(LIST_SIZE_10, &target),
-            None
-        );
+    #[case(444)]
+    #[case(326)]
+    fn fail_search_integers(#[case] target: i32) {
+        let integers = vec![0, 10, 20, 30, 40, 50, 60, 70, 80, 90];
+        assert_eq!(binary_search(&integers, &target), None);
     }
 
     #[test]
-    fn fail_search_unsorted_list_size_10() {
-        let mut list_size_10_clone= LIST_SIZE_10.clone().to_owned();
-        list_size_10_clone.reverse();
-        assert_eq!(
-            binary_search(&list_size_10_clone, &10),
-            None
-        );
+    fn fail_search_unsorted_strings_list() {
+        let unsorted_strings = vec!["salut", "olá", "hi"];
+        assert_eq!(binary_search(&unsorted_strings, &"hi"), None);
+        assert_eq!(binary_search(&unsorted_strings, &"salut"), None);
+    }
+
+    #[test]
+    fn fail_search_unsorted_integers_list() {
+        let unsorted_integers = vec![90, 80, 70, 60, 50, 40, 30, 20, 10, 0];
+        assert_eq!(binary_search(&unsorted_integers, &0), None);
+        assert_eq!(binary_search(&unsorted_integers, &80), None);
+        assert_eq!(binary_search(&unsorted_integers, &90), None);
+    }
+
+    #[test]
+    fn success_search_string_in_middle_of_unsorted_list() {
+        let unsorted_strings = vec!["salut", "olá", "hi"];
+        assert_eq!(binary_search(&unsorted_strings, &"olá"), Some(1));
+    }
+
+    #[test]
+    fn success_search_integer_in_middle_of_unsorted_list() {
+        let unsorted_strings = vec![90, 80, 70];
+        assert_eq!(binary_search(&unsorted_strings, &80), Some(1));
     }
 }
 
-
 #[cfg(test)]
 mod tests_binary_search_recursive {
-    use super::*;
     use super::binary_search::binary_search_rec;
     use rstest::rstest;
 
-    const LEFT: i32 = 0;
+    const LEFT: usize = 0;
 
-    fn _get_right_value_from_list(list: &[i32]) -> i32 {
-        (list.len() - 1) as i32
+    #[test]
+    fn fail_empty_list() {
+        let list_of_items = vec![];
+        assert_eq!(binary_search_rec(&list_of_items, &1, &LEFT, &list_of_items.len()), None);
     }
 
     #[test]
-    fn success_search_element_list_size_1() {
-        let right: i32 = _get_right_value_from_list(LIST_SIZE_1);
-        let search_result = binary_search_rec(LIST_SIZE_1, &30, &LEFT, &right);
-        assert_eq!(search_result, Some(0));
-    }
-
-    #[rstest]
-    #[case(99)]
-    #[case(-99)]
-    fn fail_search_for_non_existent_element_list_size_1(#[case] target: i32) {
-        let right: i32 = _get_right_value_from_list(LIST_SIZE_1);
-        let search_result = binary_search_rec(LIST_SIZE_1, &target, &LEFT, &right);
-        assert_eq!(search_result, None);
+    fn success_one_item() {
+        let list_of_items = vec![30];
+        assert_eq!(binary_search_rec(&list_of_items, &30, &LEFT, &list_of_items.len()), Some(0));
     }
 
     #[test]
-    fn success_search_elements_list_size_2() {
-        let right: i32 = _get_right_value_from_list(LIST_SIZE_2);
-        for (index, element) in LIST_SIZE_2.iter().enumerate() {
+    fn success_search_strings() {
+        let say_hello_list = vec!["hi", "olá", "salut"];
+        let right = say_hello_list.len();
+        assert_eq!(binary_search_rec(&say_hello_list, &"hi", &LEFT, &right), Some(0));
+        assert_eq!(binary_search_rec(&say_hello_list, &"salut", &LEFT, &right), Some(2));
+    }
+
+    #[test]
+    fn fail_search_strings() {
+        let say_hello_list = vec!["hi", "olá", "salut"];
+        let right = say_hello_list.len();
+        assert_eq!(binary_search_rec(&say_hello_list, &"adiós", &LEFT, &right), None);
+        assert_eq!(binary_search_rec(&say_hello_list, &"你好", &LEFT, &right), None);
+    }
+
+    #[test]
+    fn success_search_integers() {
+        let integers = vec![0, 10, 20, 30, 40, 50, 60, 70, 80, 90];
+        for (index, element) in integers.iter().enumerate() {
             assert_eq!(
-                binary_search_rec(LIST_SIZE_2, element, &LEFT, &right),
+                binary_search_rec(&integers, element, &LEFT, &integers.len()),
                 Some(index)
-            );
+            )
         }
     }
 
     #[rstest]
-    #[case(35)]
-    #[case(-55)]
-    fn fail_search_for_non_existent_elements_list_size_2(#[case] target: i32) {
-        let right: i32 = _get_right_value_from_list(LIST_SIZE_2);
-        assert_eq!(
-            binary_search_rec(LIST_SIZE_2, &target, &LEFT, &right),
-            None
-        )
-    }
-
-    #[test]
-    fn fail_search_unsorted_list_size_2() {
-        let mut list_size_2_clone= LIST_SIZE_2.clone().to_owned();
-        list_size_2_clone.reverse();
-        let right: i32 = _get_right_value_from_list(&list_size_2_clone);
-        assert_eq!(
-            binary_search_rec(&list_size_2_clone, &34, &LEFT, &right),
-            None
-        );
-    }
-
-    #[test]
-    fn success_search_elements_list_size_3() {
-        let right: i32 = _get_right_value_from_list(LIST_SIZE_3);
-        for (index, element) in LIST_SIZE_3.iter().enumerate() {
-            assert_eq!(
-                binary_search_rec(LIST_SIZE_3, element, &LEFT, &right),
-                Some(index)
-            );
-        }
-    }
-
-    #[rstest]
-    #[case(110)]
-    #[case(-111)]
-    #[case(567)]
-    fn fail_search_for_non_existent_elements_list_size_3(#[case] target: i32) {
-        let right: i32 = _get_right_value_from_list(LIST_SIZE_3);
-        assert_eq!(
-            binary_search_rec(LIST_SIZE_3, &target, &LEFT, &right),
-            None
-        )
-    }
-
-    #[test]
-    fn fail_search_unsorted_list_size_3() {
-        let mut list_size_3_clone= LIST_SIZE_3.clone().to_owned();
-        list_size_3_clone.reverse();
-        let right: i32 = _get_right_value_from_list(&list_size_3_clone);
-        assert_eq!(
-            binary_search_rec(&list_size_3_clone, &34, &LEFT, &right),
-            None
-        );
-    }
-
-    #[test]
-    fn success_search_elements_list_size_10() {
-        let right: i32 = _get_right_value_from_list(LIST_SIZE_10);
-        for (index, element) in LIST_SIZE_10.iter().enumerate() {
-            assert_eq!(
-                binary_search_rec(LIST_SIZE_10, element, &LEFT, &right),
-                Some(index)
-            );
-        }
-    }
-
-    #[rstest]
-    #[case(-10)]
-    #[case(11)]
     #[case(100)]
-    fn fail_search_for_non_existent_elements_list_size_10(#[case] target: i32) {
-        let right: i32 = _get_right_value_from_list(LIST_SIZE_10);
-        assert_eq!(
-            binary_search_rec(LIST_SIZE_10, &target, &LEFT, &right),
-            None
-        )
+    #[case(444)]
+    #[case(326)]
+    fn fail_search_integers(#[case] target: i32) {
+        let integers = vec![0, 10, 20, 30, 40, 50, 60, 70, 80, 90];
+        assert_eq!(binary_search_rec(&integers, &target, &LEFT, &integers.len()), None);
     }
 
     #[test]
-    fn fail_search_unsorted_list_size_10() {
-        let mut list_size_10_clone= LIST_SIZE_10.clone().to_owned();
-        list_size_10_clone.reverse();
-        let right: i32 = _get_right_value_from_list(&list_size_10_clone);
-        assert_eq!(
-            binary_search_rec(&list_size_10_clone, &34, &LEFT, &right),
-            None
-        );
+    fn fail_search_unsorted_strings_list() {
+        let unsorted_strings = vec!["salut", "olá", "hi"];
+        let right = unsorted_strings.len();
+        assert_eq!(binary_search_rec(&unsorted_strings, &"hi", &LEFT, &right), None);
+        assert_eq!(binary_search_rec(&unsorted_strings, &"salut", &LEFT, &right), None);
+    }
+
+    #[test]
+    fn fail_search_unsorted_integers_list() {
+        let unsorted_integers = vec![90, 80, 70, 60, 50, 40, 30, 20, 10, 0];
+        let right = unsorted_integers.len();
+        assert_eq!(binary_search_rec(&unsorted_integers, &0, &LEFT, &right), None);
+        assert_eq!(binary_search_rec(&unsorted_integers, &80, &LEFT, &right), None);
+        assert_eq!(binary_search_rec(&unsorted_integers, &90, &LEFT, &right), None);
+    }
+
+    #[test]
+    fn success_search_string_in_middle_of_unsorted_list() {
+        let unsorted_strings = vec!["salut", "olá", "hi"];
+        assert_eq!(binary_search_rec(&unsorted_strings, &"olá", &LEFT, &unsorted_strings.len()), Some(1));
+    }
+
+    #[test]
+    fn success_search_integer_in_middle_of_unsorted_list() {
+        let unsorted_integers = vec![90, 80, 70];
+        assert_eq!(binary_search_rec(&unsorted_integers, &80, &LEFT, &unsorted_integers.len()), Some(1));
     }
 }
